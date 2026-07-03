@@ -87,6 +87,10 @@
 
   /* Tesi */
   .tesi-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .swatch {
+    display: inline-block; width: 18px; height: 18px;
+    border: 1.5px solid; vertical-align: -3px; margin-right: 6px;
+  }
   .tesi-title { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 17px; }
   .btn-x {
     background: none; border: none; color: #7D6B5C;
@@ -147,6 +151,13 @@
     cursor: pointer;
   }
   .btn-primary:active { background: #5C4D3E; }
+  .btn-outline {
+    width: 100%; padding: 12px; margin-top: 8px;
+    background: #FFF; color: #3D2F1F; border: 1px solid #3D2F1F;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em;
+    cursor: pointer;
+  }
+  .btn-outline:active { background: #3D2F1F; color: #F5F1EA; }
   .reset-link {
     display: block; margin: 16px auto 0; background: none; border: none;
     font-size: 10px; color: #7D6B5C; cursor: pointer; text-decoration: underline;
@@ -242,6 +253,7 @@
   <div id="tesi-list"></div>
 
   <button class="btn-primary" onclick="addTesi()">＋ Aggiungi tesi</button>
+  <button class="btn-outline" onclick="exportRiepilogo()">🖼 Riepilogo immagine</button>
   <button class="reset-link" onclick="resetAll()">↺ azzera tutto</button>
 
 </div>
@@ -274,6 +286,25 @@ const UNITA = {
   'Trap/ha':     { acqua: false, peso: 'Num', parcella: 'm²' },
   'Trap/Pianta': { acqua: false, peso: 'Num', parcella: 'Piante' }
 };
+
+// stessa palette dello Schema a Blocchi: il colore segue il numero di tesi
+const PALETTE = [
+  { bg: '#FFFFFF', fg: '#3D2F1F' }, { bg: '#E8A8A0', fg: '#5C2018' },
+  { bg: '#A8C0E0', fg: '#1F3F5C' }, { bg: '#F0B888', fg: '#5A2A08' },
+  { bg: '#B8D4A8', fg: '#2D4A1F' }, { bg: '#F0C8D8', fg: '#5C2538' },
+  { bg: '#F0DC8C', fg: '#4D3608' }, { bg: '#C8B8D8', fg: '#2F1F5C' },
+  { bg: '#E8D8E8', fg: '#3D2548' }, { bg: '#F4C880', fg: '#4A2818' },
+  { bg: '#D4B8A0', fg: '#3D2516' }, { bg: '#D8C0D0', fg: '#2F2540' },
+  { bg: '#F0D0C8', fg: '#4A1F18' }, { bg: '#E8C8D0', fg: '#4D2538' },
+  { bg: '#A8C8C0', fg: '#1F3D38' }, { bg: '#C0D0A8', fg: '#2F4520' },
+  { bg: '#D0C8A8', fg: '#3D3520' }, { bg: '#A8B8C8', fg: '#202F40' },
+  { bg: '#C8A8B8', fg: '#3D1F2F' }, { bg: '#A8C0A8', fg: '#1F3F1F' }
+];
+function coloreTesi(nome, idx) {
+  const n = parseInt(nome, 10);
+  const i = isNaN(n) ? idx : n - 1;
+  return PALETTE[((i % PALETTE.length) + PALETTE.length) % PALETTE.length];
+}
 
 // tendina raggruppata: le comuni in cima
 const GRUPPI_UNITA = [
@@ -371,7 +402,8 @@ function render() {
     // intestazione tesi
     const head = document.createElement('div');
     head.className = 'tesi-head';
-    head.innerHTML = `<div class="tesi-title">Tesi <input class="txt" style="width:70px;display:inline-block;padding:4px 8px;font-size:15px;" value="${t.nome.replace(/"/g,'&quot;')}" onchange="state.tesi[${ti}].nome=this.value;salva()"></div>`;
+    const colT = coloreTesi(t.nome, ti);
+    head.innerHTML = `<div class="tesi-title"><span class="swatch" style="background:${colT.bg};border-color:${colT.fg};"></span>Tesi <input class="txt" style="width:70px;display:inline-block;padding:4px 8px;font-size:15px;" value="${t.nome.replace(/"/g,'&quot;')}" onchange="state.tesi[${ti}].nome=this.value;salva();render()"></div>`;
     const del = document.createElement('button');
     del.className = 'btn-x';
     del.textContent = '✕ rimuovi';
@@ -516,6 +548,191 @@ function resetAll() {
 function toggleCollapse(name) {
   document.getElementById(name + '-content').classList.toggle('open');
   document.getElementById(name + '-chev').classList.toggle('open');
+}
+
+// ============== RIEPILOGO IMMAGINE ==============
+// Foglio di preparazione: tutte le tesi con acqua da preparare e quantità
+function renderRiepilogoCanvas() {
+  const SCALE = 2;
+  const W = 720, pad = 26;
+  const MONO = "'IBM Plex Mono', monospace";
+  const SERIF = "'Fraunces', Georgia, serif";
+  const SANS = "'IBM Plex Sans', sans-serif";
+
+  const dim = num('dim'), acqua = num('acqua');
+  const extra = num('extra') ?? 5;
+  const { lwa, trv } = calcolaLwaTrv();
+  const P = (dim && acqua) ? dim * acqua / 10000 : null;
+
+  const blocchi = state.tesi.map((t, ti) => {
+    const usaAcqua = t.formulati.some(f => UNITA[f.unita]?.acqua);
+    const Tdef = usaAcqua ? acquaPreparata(P, extra) : null;
+    const T = t.prepOverride !== null && t.prepOverride !== '' && t.prepOverride !== undefined
+      ? parseFloat(String(t.prepOverride).replace(',', '.')) : Tdef;
+    const righe = t.formulati.map(f => {
+      const info = UNITA[f.unita];
+      const dose = parseFloat(String(f.dose).replace(',', '.'));
+      const R = dosePianificata(dose, f.unita, P, dim, lwa, trv);
+      const U = (R !== null && info.acqua && P > 0 && T > 0) ? T / P * R : R;
+      return { nome: f.nome || 'Formulato', dose: f.dose, unita: f.unita, qty: U, peso: info.peso };
+    });
+    return { nome: t.nome, colore: coloreTesi(t.nome, ti), usaAcqua, T, righe: righe.length ? righe : [{ nome: '—', dose: '', unita: '', qty: null, peso: '' }] };
+  });
+
+  const tw = W - pad * 2;
+  const col = {
+    tesi:  { x: pad,       w: 62 },
+    form:  { x: pad + 62,  w: 262 },
+    dose:  { x: pad + 324, w: 138 },
+    qty:   { x: pad + 462, w: 118 },
+    acqua: { x: pad + 580, w: tw - 580 + pad }
+  };
+
+  const capH = 84, thH = 30, rowH = 38, footH = 34;
+  const totRows = blocchi.reduce((a, b) => a + b.righe.length, 0);
+  const H = capH + thH + totRows * rowH + footH;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * SCALE;
+  canvas.height = H * SCALE;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = 'alphabetic';
+
+  // --- intestazione editoriale ---
+  const oggi = new Date().toLocaleDateString('it-IT');
+  ctx.fillStyle = '#3D2F1F';
+  ctx.font = `700 24px ${SERIF}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Calcolo Dosi e Miscele', pad, 34);
+  ctx.font = `11px ${MONO}`;
+  ctx.fillStyle = '#7D6B5C';
+  ctx.textAlign = 'right';
+  ctx.fillText(oggi, W - pad, 34);
+  ctx.textAlign = 'left';
+  let par = `Tesi ${fmt(dim, 2)} m² · ${fmt(acqua, 0)} L/ha` + (P !== null ? ` · acqua/tesi ${fmt(P, 2)} L` : '');
+  if (lwa) par += ` · LWA ${fmt(lwa, 0)} m²/ha`;
+  if (trv) par += ` · TRV ${fmt(trv, 0)} m³/ha`;
+  ctx.fillText(par, pad, 56);
+  ctx.strokeStyle = '#3D2F1F';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pad, 68); ctx.lineTo(W - pad, 68); ctx.stroke();
+
+  // --- testata tabella: leggera, editoriale ---
+  const thY = capH;
+  ctx.fillStyle = '#7D6B5C';
+  ctx.font = `500 9px ${MONO}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('T E S I', col.tesi.x + col.tesi.w / 2, thY + 14);
+  ctx.textAlign = 'left';
+  ctx.fillText('F O R M U L A T O', col.form.x + 10, thY + 14);
+  ctx.fillText('D O S E', col.dose.x + 10, thY + 14);
+  ctx.textAlign = 'right';
+  ctx.fillText('Q U A N T I T À', col.qty.x + col.qty.w - 10, thY + 14);
+  ctx.textAlign = 'center';
+  ctx.fillText('A C Q U A  L', col.acqua.x + col.acqua.w / 2, thY + 14);
+  ctx.strokeStyle = '#3D2F1F';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, thY + 24); ctx.lineTo(W - pad, thY + 24); ctx.stroke();
+
+  // --- blocchi tesi ---
+  let y = thY + thH;
+  for (const b of blocchi) {
+    const bh = b.righe.length * rowH;
+    const c = b.colore;
+
+    // velo di colore leggerissimo su tutto il blocco
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = c.bg === '#FFFFFF' ? '#F5F1EA' : c.bg;
+    ctx.fillRect(pad, y, tw, bh);
+    ctx.globalAlpha = 1;
+
+    // chip colore con numero tesi (come la cella della mappa), centrato in verticale
+    const chip = 34;
+    const chipX = col.tesi.x + (col.tesi.w - chip) / 2;
+    const chipY = y + (bh - chip) / 2;
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(chipX, chipY, chip, chip);
+    ctx.strokeStyle = c.fg;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(chipX + 0.75, chipY + 0.75, chip - 1.5, chip - 1.5);
+    ctx.fillStyle = c.fg;
+    ctx.font = `700 18px ${SERIF}`;
+    ctx.textAlign = 'center';
+    const nomeTesi = String(b.nome);
+    ctx.fillText(nomeTesi.length > 2 ? nomeTesi.slice(0, 2) : nomeTesi, chipX + chip / 2, chipY + chip / 2 + 6);
+
+    // acqua da preparare, centrata sul blocco
+    ctx.fillStyle = '#3D2F1F';
+    if (b.usaAcqua && b.T !== null && isFinite(b.T)) {
+      ctx.font = `700 19px ${SERIF}`;
+      ctx.fillText(fmt(b.T, 1), col.acqua.x + col.acqua.w / 2, y + bh / 2 + 7);
+    } else {
+      ctx.font = `12px ${MONO}`;
+      ctx.fillStyle = '#A89578';
+      ctx.fillText('—', col.acqua.x + col.acqua.w / 2, y + bh / 2 + 4);
+    }
+
+    // righe formulati
+    b.righe.forEach((r, ri) => {
+      const ry = y + ri * rowH;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#3D2F1F';
+      ctx.font = `13.5px ${SANS}`;
+      ctx.fillText(r.nome.length > 28 ? r.nome.slice(0, 27) + '…' : r.nome, col.form.x + 10, ry + 24);
+      ctx.fillStyle = '#7D6B5C';
+      ctx.font = `11px ${MONO}`;
+      ctx.fillText(`${r.dose || ''} ${r.unita}`.trim(), col.dose.x + 10, ry + 24);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#3D2F1F';
+      ctx.font = `600 14px ${MONO}`;
+      ctx.fillText(r.qty !== null && isFinite(r.qty) ? `${fmt(r.qty)} ${r.peso}` : '—', col.qty.x + col.qty.w - 10, ry + 24);
+      // filo tratteggiato tra i formulati della stessa tesi
+      if (ri < b.righe.length - 1) {
+        ctx.strokeStyle = '#D4C9B8';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(col.form.x + 10, ry + rowH); ctx.lineTo(col.qty.x + col.qty.w - 10, ry + rowH); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    });
+
+    // filo di chiusura del blocco
+    y += bh;
+    ctx.strokeStyle = '#D4C9B8';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+  }
+
+  // --- piede ---
+  ctx.fillStyle = '#A89578';
+  ctx.font = `9px ${MONO}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('S A G E A   T O O L', W / 2, y + 22);
+
+  return canvas;
+}
+
+async function exportRiepilogo() {
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch (e) {}
+  }
+  const canvas = renderRiepilogoCanvas();
+  canvas.toBlob(async blob => {
+    if (!blob) return;
+    const nome = 'dosi_miscele.png';
+    const file = new File([blob], nome, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Dosi e miscele' }); return; }
+      catch (err) { if (err && err.name === 'AbortError') return; }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nome; a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }
 
 // input globali: ricalcolo tutto
