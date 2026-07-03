@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Schemi RCBD">
-<title>Schemi a Blocchi · SAGEA Tool</title>
+<title>Schemi a Blocchi · Strumenti in campo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1784,8 +1784,8 @@ updateCheck();
 // === PWA: installazione e aggiornamenti ===
 (function () {
   const ricorda = {
-    letto() { try { return localStorage.getItem('sagea-install-ok') === '1'; } catch (e) { return true; } },
-    salva() { try { localStorage.setItem('sagea-install-ok', '1'); } catch (e) {} }
+    letto() { try { return localStorage.getItem('strumenti-install-ok') === '1'; } catch (e) { return true; } },
+    salva() { try { localStorage.setItem('strumenti-install-ok', '1'); } catch (e) {} }
   };
   const installata = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 
@@ -1819,7 +1819,7 @@ updateCheck();
   if (!installata && !ricorda.letto()) {
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault(); // Android: prompt nativo su richiesta
-      banner("Installa SAGEA Tool sulla schermata Home", 'Installa', () => e.prompt(), true);
+      banner("Installa l'app sulla schermata Home", 'Installa', () => e.prompt(), true);
     });
     if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
       // iPhone: nessun prompt nativo, istruzioni

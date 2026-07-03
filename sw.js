@@ -1,5 +1,5 @@
-// SAGEA Tool · service worker
-const CACHE = 'sagea-v27';
+// Strumenti in campo · service worker
+const CACHE = 'strumenti-v30';
 const ASSETS = [
   './',
   './index.html',

@@ -1,6 +1,6 @@
 {
-  "name": "SAGEA Tool",
-  "short_name": "SAGEA",
+  "name": "Strumenti in campo",
+  "short_name": "Strumenti",
   "description": "Strumenti per la sperimentazione agronomica in campo",
   "lang": "it",
   "start_url": "./index.html",

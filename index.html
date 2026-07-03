@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#3D2F1F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SAGEA Tool">
-<title>SAGEA Tool</title>
+<meta name="apple-mobile-web-app-title" content="Strumenti">
+<title>Strumenti in campo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,8 +153,7 @@
       <path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
     </svg>
     <div>
-      <h1>SAGEA Tool</h1>
-      <div class="subtitle">Strumenti per la sperimentazione in campo</div>
+      <h1>Strumenti per la sperimentazione in campo</h1>
     </div>
   </header>
 
@@ -221,8 +220,8 @@
 // === PWA: installazione e aggiornamenti ===
 (function () {
   const ricorda = {
-    letto() { try { return localStorage.getItem('sagea-install-ok') === '1'; } catch (e) { return true; } },
-    salva() { try { localStorage.setItem('sagea-install-ok', '1'); } catch (e) {} }
+    letto() { try { return localStorage.getItem('strumenti-install-ok') === '1'; } catch (e) { return true; } },
+    salva() { try { localStorage.setItem('strumenti-install-ok', '1'); } catch (e) {} }
   };
   const installata = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 
@@ -261,7 +260,7 @@
       e.preventDefault(); // Android: prompt nativo su richiesta
       window.__promptInstall = e;
       if (!ricorda.letto()) {
-        banner("Installa SAGEA Tool sulla schermata Home", 'Installa', () => e.prompt(), true);
+        banner("Installa l'app sulla schermata Home", 'Installa', () => e.prompt(), true);
       }
     });
     if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !ricorda.letto()) {

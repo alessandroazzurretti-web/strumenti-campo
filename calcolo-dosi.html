@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#3D2F1F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Calcolo Dosi e Miscele · SAGEA Tool</title>
+<title>Calcolo Dosi e Miscele · Strumenti in campo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -319,22 +319,22 @@ let state = {
 };
 
 function salva() {
-  try { localStorage.setItem('sagea-dosi', JSON.stringify(state)); } catch (e) {}
+  try { localStorage.setItem('strumenti-dosi', JSON.stringify(state)); } catch (e) {}
   try {
     const p = {};
     for (const id of ['dim','acqua','altezza','distfile','extra'])
       p[id] = document.getElementById(id).value;
-    localStorage.setItem('sagea-dosi-par', JSON.stringify(p));
+    localStorage.setItem('strumenti-dosi-par', JSON.stringify(p));
   } catch (e) {}
 }
 function carica() {
   try {
-    const s = localStorage.getItem('sagea-dosi');
+    const s = localStorage.getItem('strumenti-dosi');
     if (s) state = JSON.parse(s);
     // migrazione: le unità TRV non sono più disponibili
     for (const t of state.tesi) for (const f of t.formulati)
       if (f.unita && f.unita.includes('TRV')) f.unita = f.unita.replace(' TRV', '');
-    const p = JSON.parse(localStorage.getItem('sagea-dosi-par') || '{}');
+    const p = JSON.parse(localStorage.getItem('strumenti-dosi-par') || '{}');
     for (const id in p) { const el = document.getElementById(id); if (el) el.value = p[id]; }
   } catch (e) {}
 }
@@ -739,8 +739,8 @@ if (document.fonts && document.fonts.ready) {
 // === PWA: installazione e aggiornamenti ===
 (function () {
   const ricorda = {
-    letto() { try { return localStorage.getItem('sagea-install-ok') === '1'; } catch (e) { return true; } },
-    salva() { try { localStorage.setItem('sagea-install-ok', '1'); } catch (e) {} }
+    letto() { try { return localStorage.getItem('strumenti-install-ok') === '1'; } catch (e) { return true; } },
+    salva() { try { localStorage.setItem('strumenti-install-ok', '1'); } catch (e) {} }
   };
   const installata = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 
@@ -770,7 +770,7 @@ if (document.fonts && document.fonts.ready) {
   if (!installata && !ricorda.letto()) {
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
-      banner("Installa SAGEA Tool sulla schermata Home", 'Installa', () => e.prompt(), true);
+      banner("Installa l'app sulla schermata Home", 'Installa', () => e.prompt(), true);
     });
     if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
       banner('Per installare: Condividi \u2192 "Aggiungi alla schermata Home"', null, null, true);
