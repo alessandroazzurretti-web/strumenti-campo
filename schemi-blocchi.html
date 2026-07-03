@@ -1827,18 +1827,23 @@ updateCheck();
     }
   }
 
-  // — banner nuova versione —
+  // — aggiornamento automatico all'avvio: se c'è una versione nuova, si attiva subito —
   if ('serviceWorker' in navigator) {
-    const proponi = w => banner('Nuova versione disponibile', 'Aggiorna', () => w.postMessage({ type: 'SKIP_WAITING' }), false);
     navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting) proponi(reg.waiting);
+      // versione già in attesa (scaricata in una sessione precedente): attivala ora
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      // versione nuova trovata ora: appena pronta, attivala
       reg.addEventListener('updatefound', () => {
         const nuovo = reg.installing;
         if (!nuovo) return;
         nuovo.addEventListener('statechange', () => {
-          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) proponi(nuovo);
+          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) {
+            nuovo.postMessage({ type: 'SKIP_WAITING' });
+          }
         });
       });
+      // controllo forzato di aggiornamenti a ogni avvio
+      reg.update();
     }).catch(() => {});
     let ricaricata = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {

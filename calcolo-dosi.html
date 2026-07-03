@@ -778,16 +778,18 @@ if (document.fonts && document.fonts.ready) {
   }
 
   if ('serviceWorker' in navigator) {
-    const proponi = w => banner('Nuova versione disponibile', 'Aggiorna', () => w.postMessage({ type: 'SKIP_WAITING' }), false);
     navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting) proponi(reg.waiting);
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       reg.addEventListener('updatefound', () => {
         const nuovo = reg.installing;
         if (!nuovo) return;
         nuovo.addEventListener('statechange', () => {
-          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) proponi(nuovo);
+          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) {
+            nuovo.postMessage({ type: 'SKIP_WAITING' });
+          }
         });
       });
+      reg.update();
     }).catch(() => {});
     let ricaricata = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {

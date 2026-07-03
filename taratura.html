@@ -546,13 +546,23 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(aggiornaAn
     if (/iphone|ipad|ipod/i.test(navigator.userAgent)) banner('Per installare: Condividi \u2192 "Aggiungi alla schermata Home"', null, null, true);
   }
   if ('serviceWorker' in navigator) {
-    const proponi = wk => banner('Nuova versione disponibile', 'Aggiorna', () => wk.postMessage({ type: 'SKIP_WAITING' }), false);
     navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting) proponi(reg.waiting);
-      reg.addEventListener('updatefound', () => { const nuovo = reg.installing; if (!nuovo) return; nuovo.addEventListener('statechange', () => { if (nuovo.state === 'installed' && navigator.serviceWorker.controller) proponi(nuovo); }); });
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const nuovo = reg.installing;
+        if (!nuovo) return;
+        nuovo.addEventListener('statechange', () => {
+          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) {
+            nuovo.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+      reg.update();
     }).catch(() => {});
-    let ric = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!ric) { ric = true; location.reload(); } });
+    let ricaricata = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!ricaricata) { ricaricata = true; location.reload(); }
+    });
   }
 })();
 </script>
