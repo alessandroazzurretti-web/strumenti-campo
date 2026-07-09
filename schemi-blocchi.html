@@ -20,6 +20,7 @@
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     color: #3D2F1F;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
     -webkit-text-size-adjust: 100%;
   }
   body { min-height: 100vh; padding: 12px; padding-bottom: 128px; }
@@ -468,16 +469,16 @@
   }
   .metrics-grid > div {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto auto;
     align-items: start;
   }
   .metric-label {
-    font-size: 9px;
+    font-size: 8.5px;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.03em;
     color: #7D6B5C;
     margin-bottom: 6px;
-    min-height: 2.4em;
+    white-space: nowrap;
     line-height: 1.2;
   }
   .metric-value {
@@ -486,7 +487,6 @@
     font-size: 24px;
     line-height: 1;
     margin-bottom: 4px;
-    align-self: end;
   }
   .metric-value.good { color: #3F6B2F; }
   .metric-note {
