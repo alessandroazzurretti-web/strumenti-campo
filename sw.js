@@ -1,11 +1,12 @@
 // Strumenti in campo · service worker
-const CACHE = 'strumenti-v52';
+const CACHE = 'strumenti-v53';
 const ASSETS = [
   './',
   './index.html',
   './schemi-blocchi.html',
   './calcolo-dosi.html',
   './taratura.html',
+  './bbch.html',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',

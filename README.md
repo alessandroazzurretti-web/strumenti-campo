@@ -7,6 +7,7 @@ App per la sperimentazione agronomica in campo. Funziona come un'app: si install
 - **Schemi a Blocchi** — randomizzazione disegni sperimentali (RCB, CRD, quadrato latino), mappa di campo, spostamento parcelle, export immagine.
 - **Calcolo Dosi e Miscele** — dosi per tesi in tutte le unità (compreso LWA), acqua e quantità da preparare, riepilogo a tabella colorata.
 - **Taratura Irroratrice** — erogato ugelli su 3 run, media D, portata, controllo conformità ±5%.
+- **Scala BBCH** — fasi fenologiche di 32 colture (codici e descrizioni ufficiali BBCH 2001), colture preferite, navigazione per fase.
 
 ## Come installare l'app
 
