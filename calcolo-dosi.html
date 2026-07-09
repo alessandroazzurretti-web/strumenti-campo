@@ -152,7 +152,9 @@
   }
   .btn-outline:active { background: #3D2F1F; color: #F5F1EA; }
   .export-row { display: flex; gap: 8px; margin-top: 8px; }
-  .export-row .btn-outline { flex: 1; margin-top: 0; }
+  .export-row .btn-outline { flex: 1; margin-top: 0; padding: 12px 4px; font-size: 11px; letter-spacing: 0.08em; }
+  .btn-outline.btn-danger { color: #A04030; border-color: #A04030; }
+  .btn-outline.btn-danger:active { background: #A04030; color: #F5F1EA; }
   .anteprima { margin-top: 12px; }
   .anteprima img {
     display: block; width: 100%;
@@ -163,10 +165,6 @@
     display: flex; align-items: center; gap: 8px; margin-top: 8px;
   }
   .anteprima-azioni .btn-outline { flex: 1; }
-  .reset-link {
-    display: block; margin: 16px auto 0; background: none; border: none;
-    font-size: 10px; color: #7D6B5C; cursor: pointer; text-decoration: underline;
-  }
 
   /* Banner PWA */
   .pwa-banner {
@@ -256,10 +254,9 @@
     <div class="export-row">
       <button class="btn-outline" onclick="salvaImmagine()">Salva</button>
       <button class="btn-outline" onclick="condividiImmagine()">Condividi</button>
+      <button class="btn-outline btn-danger" onclick="resetAll()">Azzera</button>
     </div>
   </div>
-
-  <button class="reset-link" onclick="resetAll()">azzera tutto</button>
 
 </div>
 
