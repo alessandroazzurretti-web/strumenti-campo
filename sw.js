@@ -1,5 +1,5 @@
 // Strumenti in campo · service worker
-const CACHE = 'strumenti-v65';
+const CACHE = 'strumenti-v66';
 const ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,9 @@ self.addEventListener('install', e => {
 
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data && e.data.type === 'GET_VERSION' && e.ports && e.ports[0]) {
+    e.ports[0].postMessage({ version: CACHE });
+  }
 });
 
 self.addEventListener('activate', e => {
