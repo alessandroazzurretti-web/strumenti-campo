@@ -1,6 +1,6 @@
 // Strumenti in campo · service worker.
 // CACHE è l'unica fonte della versione: le pagine la leggono con GET_VERSION.
-const CACHE = 'strumenti-1.12.3';
+const CACHE = 'strumenti-1.12.4';
 const ASSETS = [
   './',
   './index.html',

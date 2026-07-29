@@ -1275,8 +1275,10 @@ function generate() {
   // In quel caso non si tenta nemmeno il vincolo rigido — sarebbero centinaia di
   // tentativi buttati — ma la richiesta resta viva come preferenza, i doppi
   // vengono ridotti al minimo e la cosa viene dichiarata sotto le metriche.
-  const chiestoRow = design === 'latin' || (design !== 'crd' && state.noRowDouble !== false);
-  const chiestoCol = design === 'latin' || (design !== 'crd' && state.noColDouble !== false);
+  // Gli interruttori valgono per tutti i disegni, CRD compreso: lì partono spenti
+  // (i doppi non fanno parte del disegno) ma se si accendono devono essere onorati.
+  const chiestoRow = design === 'latin' || state.noRowDouble === true;
+  const chiestoCol = design === 'latin' || state.noColDouble === true;
   const wantNoRowDouble = design === 'latin' ? true : (chiestoRow && replications <= rows);
   const wantNoColDouble = design === 'latin' ? true : (chiestoCol && replications <= cols);
 
