@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#3D2F1F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -61,7 +61,6 @@
   .modal-body ol { margin: 0 0 12px; padding-left: 20px; }
   .modal-body li { margin-bottom: 8px; }
   .modal-body strong { color: #5C4A38; }
-  .modal-body .nota { font-size: 12px; color: #7D6B5C; border-top: 1px solid #D4C9B8; padding-top: 12px; margin-top: 4px; }
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
   .modal-actions button {
     flex: 1; padding: 12px; border: 1px solid #3D2F1F; background: #FFF; color: #3D2F1F;
@@ -154,11 +153,6 @@
 
   .anteprima { margin-top: 12px; }
   .anteprima img { display: block; width: 100%; border: 1px solid #D4C9B8; background: #FFF; }
-
-  /* Banner PWA */
-  .pwa-banner { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60; max-width: 696px; margin: 0 auto; background: #3D2F1F; color: #F5F1EA; display: flex; align-items: center; gap: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.4; box-shadow: 0 6px 16px rgba(61,47,31,0.35); }
-  .pwa-banner-btn { flex-shrink: 0; background: #F5F1EA; color: #3D2F1F; border: none; padding: 8px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer; }
-  .pwa-banner-close { flex-shrink: 0; background: none; border: none; color: #F5F1EA; opacity: 0.7; font-size: 14px; cursor: pointer; padding: 4px; }
 </style>
 </head>
 <body>
@@ -290,26 +284,57 @@ let state = {
   misure: Array.from({ length: 6 }, () => ['', '', ''])
 };
 
+const LS_TAR = 'strumenti-taratura';
+const LS_TAR_VER = 2;   // v2: stato validato al caricamento
+
 function salva() {
   try {
-    localStorage.setItem('strumenti-taratura', JSON.stringify(state));
+    localStorage.setItem(LS_TAR, JSON.stringify({ v: LS_TAR_VER, nozzles: state.nozzles, misure: state.misure }));
     const p = {};
     for (const id of ['codeEquip','nozzleModel','codeManometer','codeChrono','pressure','tempo']) p[id] = document.getElementById(id).value;
     localStorage.setItem('strumenti-taratura-par', JSON.stringify(p));
   } catch (e) {}
 }
+// Lo stato salvato non è fidato: si accettano solo un numero di ugelli nel
+// range dell'interfaccia e misure che siano stringhe brevi.
+function normalizzaStato(d) {
+  const n = Number.isInteger(d && d.nozzles) ? Math.max(1, Math.min(24, d.nozzles)) : 6;
+  const src = (d && Array.isArray(d.misure)) ? d.misure : [];
+  const misure = Array.from({ length: Math.max(n, src.length) }, (_, u) => {
+    const riga = Array.isArray(src[u]) ? src[u] : [];
+    return [0, 1, 2].map(r => {
+      const v = riga[r];
+      return (typeof v === 'string' || typeof v === 'number') ? String(v).slice(0, 10) : '';
+    });
+  });
+  return { nozzles: n, misure };
+}
+
 function carica() {
   try {
-    const s = localStorage.getItem('strumenti-taratura');
-    if (s) state = JSON.parse(s);
+    const raw = localStorage.getItem(LS_TAR);
+    if (raw) state = normalizzaStato(JSON.parse(raw));
+  } catch (e) {
+    state = normalizzaStato(null);
+  }
+  try {
     const p = JSON.parse(localStorage.getItem('strumenti-taratura-par') || '{}');
-    for (const id in p) { const el = document.getElementById(id); if (el) el.value = p[id]; }
+    for (const id in p) {
+      const el = document.getElementById(id);
+      if (el && typeof p[id] === 'string' && p[id].length <= 40) el.value = p[id];
+    }
   } catch (e) {}
 }
 
-// ============== CALCOLI (Mod007f) ==============
+// Le misure tornano nell'HTML come attributo value: una virgoletta digitata
+// per sbaglio, senza escape, spezza la tabella al ricaricamento.
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ============== CALCOLI ==============
 function num2(v) { const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? null : n; }
-function r2(v) { return Math.round((v + Number.EPSILON) * 100) / 100; } // 2 decimali come da modulo
+function r2(v) { return Math.round((v + Number.EPSILON) * 100) / 100; } // arrotondamento a 2 decimali
 function fmt2(v) { return (v === null || !isFinite(v)) ? '—' : v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 // D per ugello = media dei 3 run (A+B+C)/3, a 2 decimali
@@ -346,7 +371,7 @@ function calcola() {
   const runs = tuttiRun();
   const n = state.nozzles;
 
-  // D = media di tutti i run (valore di riferimento del modulo)
+  // D = media di tutti i run: è il valore di riferimento per la conformità
   const D = runs.length ? r2(runs.reduce((a, b) => a + b, 0) / runs.length) : null;
   // banda esatta, non arrotondata: evita il doppio arrotondamento sui limiti
   const hi = D !== null ? D * 1.05 : null;   // D + 5%
@@ -364,7 +389,7 @@ function calcola() {
       if (num2(state.misure[u][r]) !== null) totRun++;
   const completo = totRun === n * 3;
 
-  // conformità (Mod007f): nessun ugello, singolarmente, deve risultare fuori
+  // conformità: nessun ugello, singolarmente, deve risultare fuori
   // dall'accettabilità D ±5%. Un ugello è fuori se ANCHE UNA SOLA delle sue
   // misure (run A, B o C) cade oltre la banda.
   const medie = [];
@@ -405,7 +430,7 @@ function renderTabella() {
     html += '<tr><td class="rowlbl">' + (r + 1) + ' \u00b7 ' + runLbl[r] + '</td>';
     for (let u = 0; u < state.nozzles; u++) {
       const v = state.misure[u][r];
-      html += '<td class="out' + (c.badRun[u][r] ? ' bad' : '') + '"><input type="text" inputmode="decimal" value="' + v + '" data-u="' + u + '" data-r="' + r + '" placeholder="mL"></td>';
+      html += '<td class="out' + (c.badRun[u][r] ? ' bad' : '') + '"><input type="text" inputmode="decimal" value="' + esc(v) + '" data-u="' + u + '" data-r="' + r + '" placeholder="mL"></td>';
     }
     const mr = mediaRun(r);
     html += '<td class="dcell mrun">' + (mr !== null ? fmt2(mr) : '\u2014') + '</td></tr>';
@@ -655,44 +680,7 @@ carica();
 render();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(aggiornaAnteprima).catch(() => {});
 
-// === PWA ===
-(function () {
-  const ricorda = {
-    letto() { try { return localStorage.getItem('strumenti-install-ok') === '1'; } catch (e) { return true; } },
-    salva() { try { localStorage.setItem('strumenti-install-ok', '1'); } catch (e) {} }
-  };
-  const installata = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-  function banner(msg, btnLabel, onBtn, isInstall) {
-    const bar = document.createElement('div'); bar.className = 'pwa-banner';
-    const span = document.createElement('span'); span.style.flex = '1'; span.textContent = msg; bar.appendChild(span);
-    if (btnLabel) { const b = document.createElement('button'); b.className = 'pwa-banner-btn'; b.textContent = btnLabel; b.onclick = () => { if (onBtn) onBtn(); bar.remove(); }; bar.appendChild(b); }
-    const x = document.createElement('button'); x.className = 'pwa-banner-close'; x.textContent = '✕'; x.onclick = () => { bar.remove(); if (isInstall) ricorda.salva(); }; bar.appendChild(x);
-    document.body.appendChild(bar); return bar;
-  }
-  if (!installata && !ricorda.letto()) {
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); banner("Installa l'app sulla schermata Home", 'Installa', () => e.prompt(), true); });
-    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) banner('Per installare: Condividi \u2192 "Aggiungi alla schermata Home"', null, null, true);
-  }
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      reg.addEventListener('updatefound', () => {
-        const nuovo = reg.installing;
-        if (!nuovo) return;
-        nuovo.addEventListener('statechange', () => {
-          if (nuovo.state === 'installed' && navigator.serviceWorker.controller) {
-            nuovo.postMessage({ type: 'SKIP_WAITING' });
-          }
-        });
-      });
-      reg.update();
-    }).catch(() => {});
-    let ricaricata = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!ricaricata) { ricaricata = true; location.reload(); }
-    });
-  }
-})();
 </script>
+<script src="pwa.js"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
-// Strumenti in campo · service worker
-const CACHE = 'strumenti-1.8.0';
+// Strumenti in campo · service worker.
+// CACHE è l'unica fonte della versione: le pagine la leggono con GET_VERSION.
+const CACHE = 'strumenti-1.11.4';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +8,7 @@ const ASSETS = [
   './calcolo-dosi.html',
   './taratura.html',
   './bbch.html',
+  './pwa.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
@@ -15,8 +17,8 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  // niente skipWaiting automatico: la nuova versione si attiva
-  // quando l'utente tocca "Aggiorna" nel banner
+  // niente skipWaiting automatico: decide la pagina, secondo l'impostazione
+  // "Aggiornamenti automatici" scelta dall'utente
 });
 
 self.addEventListener('message', e => {
@@ -35,9 +37,11 @@ self.addEventListener('activate', e => {
 });
 
 // Cache-first con aggiornamento in background (stale-while-revalidate).
-// I font di Google vengono messi in cache al primo uso: dopo, tutto offline.
+// I font vengono messi in cache al primo uso: dopo, tutto offline.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   e.respondWith(
     caches.match(e.request).then(hit => {
       const net = fetch(e.request).then(res => {
