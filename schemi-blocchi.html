@@ -598,7 +598,7 @@
       </div>
       <div class="modal-body">
         <ol>
-          <li>Tocca <strong>Nuovo</strong> e scegli il disegno: <strong>RCB</strong>, <strong>CRD</strong> o <strong>Quadrato latino</strong>.</li>
+          <li>Tocca <strong>Nuovo</strong> e imposta il campo: lo schema è a <strong>blocchi randomizzati (RCB)</strong>, ogni replica è un blocco lungo la serpentina.</li>
           <li>Imposta numero di <strong>tesi</strong>, <strong>ripetizioni</strong> e la disposizione del campo, poi genera lo schema.</li>
           <li>La <strong>serpentina</strong> decide come corre la numerazione e come si formano i blocchi: verticale &#8593; per gradienti lungo le colonne, orizzontale &#8594; per gradienti lungo le righe.</li>
           <li>Per campi irregolari, tocca le celle da <strong>escludere ✕</strong>; con <strong>Sposta</strong> puoi scambiare le parcelle a mano.</li>
@@ -648,17 +648,18 @@
       <div class="seed-hint" id="fattori-hint"></div>
     </div>
 
-    <label class="label" style="margin-top:14px;">Disegno sperimentale</label>
-    <select id="design" onchange="setDesign(this.value)">
-      <option value="rcb" selected>Blocchi randomizzati · RCB</option>
-      <option value="crd">Completamente randomizzato · CRD</option>
-      <option value="latin">Quadrato latino</option>
-      <!-- Split-plot e fattoriale sono pronti ma non ancora esposti.
-           Per riattivarli: rimettere qui le due opzioni
-             <option value="split">Split-plot</option>
-             <option value="factorial">Fattoriale a due fattori</option>
-           e togliere i due nomi da DISEGNI_NASCOSTI. -->
-    </select>
+    <div id="design-box">
+      <label class="label" style="margin-top:14px;">Disegno sperimentale</label>
+      <select id="design" onchange="setDesign(this.value)">
+        <option value="rcb" selected>Blocchi randomizzati · RCB</option>
+        <!-- Disegni pronti ma non esposti. Per riattivarne uno: rimettere qui
+             la sua opzione e togliere il nome da DISEGNI_NASCOSTI.
+               <option value="crd">Completamente randomizzato · CRD</option>
+               <option value="latin">Quadrato latino</option>
+               <option value="split">Split-plot</option>
+               <option value="factorial">Fattoriale a due fattori</option>  -->
+      </select>
+    </div>
 
     <div id="fact-rand-box" style="display:none;">
       <label class="label" style="margin-top:14px;">Randomizzazione del fattoriale</label>
@@ -1058,7 +1059,7 @@ const designInfo = {
 // numero di tesi e tutto il resto dell'app (colori, metriche, numerazione,
 // spostamenti manuali) continua a funzionare senza modifiche.
 // Disegni implementati ma non ancora offerti nella tendina.
-const DISEGNI_NASCOSTI = ['split', 'factorial'];
+const DISEGNI_NASCOSTI = ['crd', 'latin', 'split', 'factorial'];
 
 function aDueFattori(design) { return design === 'split' || design === 'factorial'; }
 function livelloA(t, b) { return Math.floor((t - 1) / b) + 1; }
@@ -1153,6 +1154,14 @@ function aggiornaAvanzate() {
 function setFactRand(v) {
   state.factorialRand = v;
   updateCheck();
+}
+
+// Con un solo disegno disponibile la tendina non ha niente da scegliere:
+// si nasconde l'intero blocco invece di mostrare un menu a voce unica.
+function aggiornaTendinaDisegni() {
+  const box = document.getElementById('design-box');
+  const sel = document.getElementById('design');
+  if (box && sel) box.style.display = sel.options.length > 1 ? 'block' : 'none';
 }
 
 function setDesign(v) {
@@ -2400,6 +2409,7 @@ setupNumericInput('rows', 4);
 setupNumericInput('cols', 6);
 setupNumericInput('tesi', 6);
 setupNumericInput('reps', 4);
+aggiornaTendinaDisegni();
 caricaStato();
 updateCheck();
 

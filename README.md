@@ -2,10 +2,10 @@
 
 App per la sperimentazione agronomica. Si installa sulla schermata Home del telefono e funziona anche senza connessione.
 
-- **Schemi a Blocchi** — RCB, CRD, quadrato latino. Mappa di campo, celle escluse per i campi irregolari, spostamento delle parcelle, export dell'immagine. Ogni randomizzazione ha un **seme** che la rende ripetibile e documentabile nel protocollo di prova.
+- **Schemi a Blocchi** — randomizzazione a **blocchi randomizzati (RCB)**: mappa di campo, celle escluse per i campi irregolari, spostamento delle parcelle, export dell'immagine. Ogni randomizzazione ha un **seme** che la rende ripetibile e documentabile nel protocollo di prova.
 - **Calcolo Dosi e Miscele** — dosi per tesi in tutte le unità (LWA compreso), acqua e quantità da preparare.
 - **Taratura Irroratrice** — erogato degli ugelli su 3 run, media D, portata, conformità ±5%.
-- **Scala BBCH** — 32 colture, 1538 stadi, con le note della monografia.
+- **Scala BBCH** — 32 colture, 1538 stadi, in italiano e in inglese, con le note della monografia.
 
 ## Installare l'app
 
