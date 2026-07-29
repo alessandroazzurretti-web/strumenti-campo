@@ -1,6 +1,6 @@
 // Strumenti in campo · service worker.
 // CACHE è l'unica fonte della versione: le pagine la leggono con GET_VERSION.
-const CACHE = 'strumenti-1.12.6';
+const CACHE = 'strumenti-1.12.7';
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,17 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  // cache: 'reload' salta la cache HTTP del browser e della CDN: senza, capita
+  // di installare una versione nuova del worker con dentro pagine vecchie,
+  // e l'app dichiara una versione che non corrisponde a quello che mostra.
+  e.waitUntil(
+    caches.open(CACHE).then(c =>
+      Promise.all(ASSETS.map(url =>
+        fetch(new Request(url, { cache: 'reload' }))
+          .then(res => (res && res.ok) ? c.put(url, res) : null)
+      ))
+    )
+  );
   // niente skipWaiting automatico: decide la pagina, secondo l'impostazione
   // "Aggiornamenti automatici" scelta dall'utente
 });
