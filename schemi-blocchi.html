@@ -1156,14 +1156,6 @@ function setFactRand(v) {
   updateCheck();
 }
 
-// Con un solo disegno disponibile la tendina non ha niente da scegliere:
-// si nasconde l'intero blocco invece di mostrare un menu a voce unica.
-function aggiornaTendinaDisegni() {
-  const box = document.getElementById('design-box');
-  const sel = document.getElementById('design');
-  if (box && sel) box.style.display = sel.options.length > 1 ? 'block' : 'none';
-}
-
 function setDesign(v) {
   state.design = v;
   const shape = document.getElementById('shape-section');
@@ -2409,7 +2401,6 @@ setupNumericInput('rows', 4);
 setupNumericInput('cols', 6);
 setupNumericInput('tesi', 6);
 setupNumericInput('reps', 4);
-aggiornaTendinaDisegni();
 caricaStato();
 updateCheck();
 
