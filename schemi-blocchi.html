@@ -712,6 +712,13 @@
           </span>
         </label>
         <label class="toggle-row">
+          <span>Evita anche i <strong>contatti d'angolo</strong></span>
+          <span class="switch">
+            <input type="checkbox" id="diag-chk" onchange="setVincolo('noDiagonal', this.checked)">
+            <span class="slider"></span>
+          </span>
+        </label>
+        <label class="toggle-row">
           <span>Evita <strong>doppi in riga</strong></span>
           <span class="switch">
             <input type="checkbox" id="row-chk" checked onchange="setVincolo('noRowDouble', this.checked)">
@@ -812,6 +819,7 @@ const state = {
   // Vincoli di posizione, tutti disattivabili da "Avanzate". I valori qui sono
   // quelli di partenza dell'RCB; setDesign li riporta al default del disegno scelto.
   noAdjacent: true,   // niente parcelle della stessa tesi a contatto di lato
+  noDiagonal: false,  // ... e nemmeno d'angolo, se acceso (riduce molto gli schemi possibili)
   noRowDouble: true,  // niente due parcelle della stessa tesi nella stessa riga
   noColDouble: true,  // ... né nella stessa colonna
   excluded: new Set(), // celle depennate, chiave "rigaVisuale,colonna"
@@ -1013,21 +1021,27 @@ function computeMetrics(grid, treatments) {
     for (const k in colCount) if (colCount[k] > 1) sameColCount += colCount[k] - 1;
     for (const k in rowCount) if (rowCount[k] > 1) sameRowCount += rowCount[k] - 1;
   }
-  // Adiacenze reali (coppie di stessa tesi che condividono un lato):
-  // dopo modifiche manuali può non essere più zero
-  let adjCount = 0;
-  const half = [[0,1],[1,0]]; // metà direzioni: ogni coppia contata una volta
+  // Contatti fra parcelle della stessa tesi, contati a parte: di lato e d'angolo.
+  // Il vincolo agisce sui lati; gli angoli si contano comunque, perché a colpo
+  // d'occhio sulla mappa si notano e vanno dichiarati.
+  let adjCount = 0, diagCount = 0;
+  const lati = [[0,1],[1,0]];              // metà direzioni: ogni coppia una volta sola
+  const angoli = [[1,-1],[1,1]];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (!grid[r][c]) continue;
-      for (const [dr, dc] of half) {
+      const t = grid[r][c].treatment;
+      for (const [dr, dc] of lati) {
         const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] &&
-            grid[nr][nc].treatment === grid[r][c].treatment) adjCount++;
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] && grid[nr][nc].treatment === t) adjCount++;
+      }
+      for (const [dr, dc] of angoli) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] && grid[nr][nc].treatment === t) diagCount++;
       }
     }
   }
-  return { sameColCount, sameRowCount, adjCount };
+  return { sameColCount, sameRowCount, adjCount, diagCount };
 }
 
 // ============== DISEGNO SPERIMENTALE ==============
@@ -1098,9 +1112,9 @@ function setVincolo(nome, valore) {
 // richiede per definizione, il CRD non li prevede. Cambiando disegno si torna
 // al suo default, poi si può sempre intervenire a mano.
 function vincoliDefault(design) {
-  if (design === 'latin') return { noAdjacent: true, noRowDouble: true, noColDouble: true };
-  if (design === 'crd') return { noAdjacent: true, noRowDouble: false, noColDouble: false };
-  return { noAdjacent: true, noRowDouble: true, noColDouble: true };
+  if (design === 'latin') return { noAdjacent: true, noDiagonal: false, noRowDouble: true, noColDouble: true };
+  if (design === 'crd') return { noAdjacent: true, noDiagonal: false, noRowDouble: false, noColDouble: false };
+  return { noAdjacent: true, noDiagonal: false, noRowDouble: true, noColDouble: true };
 }
 
 function applicaVincoliDefault(design) {
@@ -1110,17 +1124,22 @@ function applicaVincoliDefault(design) {
 
 function aggiornaAvanzate() {
   const latin = state.design === 'latin';
-  const chk = { 'adj-chk': 'noAdjacent', 'row-chk': 'noRowDouble', 'col-chk': 'noColDouble' };
+  const chk = { 'adj-chk': 'noAdjacent', 'diag-chk': 'noDiagonal', 'row-chk': 'noRowDouble', 'col-chk': 'noColDouble' };
   for (const id in chk) {
     const el = document.getElementById(id);
     if (!el) continue;
-    el.checked = state[chk[id]] !== false;
+    el.checked = state[chk[id]] === true || (id !== 'diag-chk' && state[chk[id]] !== false);
     // nel quadrato latino i doppi sono vietati per definizione: non si tolgono
-    el.disabled = latin && id !== 'adj-chk';
+    el.disabled = (latin && id !== 'adj-chk' && id !== 'diag-chk') ||
+                  (id === 'diag-chk' && state.noAdjacent === false);
   }
   const hint = document.getElementById('avanzate-hint');
   if (!hint) return;
   const spenti = [];
+  if (state.noDiagonal === true) {
+    hint.textContent = "Vietare anche gli angoli restringe molto le disposizioni possibili: con poche tesi e poche righe gli schemi tendono a ripetersi a strisce.";
+    return;
+  }
   if (state.noAdjacent === false) spenti.push('adiacenze');
   if (state.noRowDouble === false) spenti.push('doppi in riga');
   if (state.noColDouble === false) spenti.push('doppi in colonna');
@@ -1221,6 +1240,7 @@ function generate() {
       `${mancano === 1 ? 'Manca 1 cella' : 'Mancano ' + mancano + ' celle'}.`);
   }
   const noAdjacent = state.noAdjacent !== false;
+  const noDiagonal = noAdjacent && state.noDiagonal === true;
   if (treatments === 1 && availableCells > 1 && noAdjacent) {
     return showError('Con una sola tesi è impossibile evitare adiacenze: togli il vincolo in Avanzate.');
   }
@@ -1274,7 +1294,9 @@ function generate() {
 
     function getNeighborTreatments(r, c) {
       const ts = new Set();
-      const dirs = [[-1,0],[0,-1],[0,1],[1,0]];
+      const dirs = noDiagonal
+        ? [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]
+        : [[-1,0],[0,-1],[0,1],[1,0]];
       for (const [dr, dc] of dirs) {
         const nr = r + dr, nc = c + dc;
         if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc]) {
@@ -1385,7 +1407,7 @@ function generate() {
       validFound: 1, poolSize: 1, bufferCells,
       enforceNoRowDouble: false, enforceNoColDouble: false,
       relaxedRow: false, relaxedCol: false,
-      excluded, startT1, noAdjacent, seed: seme,
+      excluded, startT1, noAdjacent, noDiagonal, seed: seme,
       factorA: livA, factorB: livB,
       blocchiNonCompatti: blocchiNonCompatti(design, rows, cols, treatments, state.direction, excluded.size),
       parcelleNonCompatte: parcelleNonCompatte(design, rows, cols, state.direction, excluded.size)
@@ -1462,7 +1484,7 @@ function generate() {
     validFound, poolSize: best.poolSize, bufferCells,
     enforceNoRowDouble, enforceNoColDouble,
     relaxedRow, relaxedCol,
-    excluded, startT1, noAdjacent, seed: seme,
+    excluded, startT1, noAdjacent, noDiagonal, seed: seme,
     factorA: aDueFattori(design) ? livA : null,
     factorB: aDueFattori(design) ? livB : null,
     factorialRand: design === 'factorial' ? state.factorialRand : null,
@@ -1647,7 +1669,9 @@ function renderMetrics() {
       <div>
         <div class="metric-label">Adiacenze</div>
         <div class="metric-value${s.metrics.adjCount === 0 ? ' good' : ''}">${s.metrics.adjCount}</div>
-        <div class="metric-note">${s.noAdjacent === false ? 'vincolo non richiesto' : 'parcelle a contatto'}</div>
+        <div class="metric-note">${s.noAdjacent === false
+          ? 'vincolo non richiesto'
+          : (s.metrics.diagCount ? `di lato · ${s.metrics.diagCount} d'angolo` : "di lato · nessuna d'angolo")}</div>
       </div>
       <div>
         <div class="metric-label">Doppi in colonna</div>
@@ -1726,9 +1750,13 @@ function renderMetrics() {
       : `<div class="buffer-notice">${coppie} di <strong>stessa tesi a contatto di lato</strong>.</div>`;
   }
   if (firstOk && s.metrics.adjCount === 0) {
-    html += wantStartT1
-      ? `<div class="buffer-notice">Partenza e adiacenze <strong>rispettate</strong>.</div>`
-      : `<div class="buffer-notice">Adiacenze <strong>rispettate</strong> · partenza libera.</div>`;
+    const angoli = s.metrics.diagCount;
+    const dettaglio = s.noDiagonal
+      ? 'nessun contatto fra parcelle della stessa tesi, nemmeno d\'angolo'
+      : (angoli
+          ? `nessun contatto <strong>di lato</strong>; ${angoli === 1 ? "1 coppia si tocca d'angolo" : angoli + " coppie si toccano d'angolo"}`
+          : "nessun contatto, né di lato né d'angolo");
+    html += `<div class="buffer-notice">${wantStartT1 ? 'Partenza rispettata · ' : 'Partenza libera · '}${dettaglio}.</div>`;
   }
   el.innerHTML = html;
 }
@@ -2284,6 +2312,7 @@ function salvaStato() {
       numbering: state.numbering,
       startT1: state.startT1,
       noAdjacent: state.noAdjacent,
+      noDiagonal: state.noDiagonal,
       noRowDouble: state.noRowDouble,
       noColDouble: state.noColDouble,
       seed: state.seed,
@@ -2344,7 +2373,7 @@ function caricaStato() {
     }
     state.startT1 = d.startT1 !== false;
     document.getElementById('start-t1-chk').checked = state.startT1;
-    for (const k of ['noAdjacent', 'noRowDouble', 'noColDouble'])
+    for (const k of ['noAdjacent', 'noDiagonal', 'noRowDouble', 'noColDouble'])
       if (typeof d[k] === 'boolean') state[k] = d[k];
     aggiornaAvanzate();
     if (Array.isArray(d.excluded))
