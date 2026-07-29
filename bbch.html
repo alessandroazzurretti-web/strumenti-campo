@@ -197,7 +197,7 @@ const PGS = {
 };
 
 const CROPS = [
-  { id:'general', nome:'General scale', ico:'🌱', src:'Hack et al., 1992', note:['This stage is not used, if the main fruit growth happens in principal growth stage 8'], stages:[
+  { id:'general', nome:'General scale', ico:'🌱', src:'Hack et al., 1992', note:[['1','This stage is not used, if the main fruit growth happens in principal growth stage 8']], stages:[
     ['00','Dry seed (seed dressing takes place at stage 00); [P, V] Winter dormancy or resting period'],
     ['01','Beginning of seed imbibition; [P, V] Beginning of bud swelling'],
     ['03','Seed imbibition complete; [P, V] End of bud swelling'],
@@ -258,7 +258,7 @@ const CROPS = [
     ['97','End of leaf fall, plants or above ground parts dead or dormant; [P] Plant resting or dormant'],
     ['99','Harvested product (post-harvest or storage treatment is applied at stage 99)'],
   ]},
-  { id:'cereals', nome:'Cereals', ico:'🌾', src:'Witzenberger et al., 1989; Lancashire et al., 1991', note:['A leaf is unfolded when its ligule is visible or the tip of the next leaf is visible', 'Tillering or stem elongation may occur earlier than stage 13; in this case continue with stages 21', 'If stem elongation begins before the end of tillering continue with stage 30'], stages:[
+  { id:'cereals', nome:'Cereals', ico:'🌾', src:'Witzenberger et al., 1989; Lancashire et al., 1991', note:[['1','A leaf is unfolded when its ligule is visible or the tip of the next leaf is visible'], ['2','Tillering or stem elongation may occur earlier than stage 13; in this case continue with stages 21'], ['3','If stem elongation begins before the end of tillering continue with stage 30']], stages:[
     ['00','Dry seed (caryopsis)'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -315,7 +315,7 @@ const CROPS = [
     ['97','Plant dead and collapsing'],
     ['99','Harvested product'],
   ]},
-  { id:'rice', nome:'Rice', ico:'🌾', src:'Lancashire et al., 1991', note:['A leaf is unfolded when its ligule is visible or the tip of the next leaf is visible', 'Tillering or stem elongation may occur earlier than stage 13; in this case continue with stages 21 or 30', 'If stem elongation begins before the end of tillering continue with stage 30', 'Flowering usually starts before stage 55; continue with principal stage 6'], stages:[
+  { id:'rice', nome:'Rice', ico:'🌾', src:'Lancashire et al., 1991', note:[['1','A leaf is unfolded when its ligule is visible or the tip of the next leaf is visible'], ['2','Tillering or stem elongation may occur earlier than stage 13; in this case continue with stages 21 or 30'], ['3','If stem elongation begins before the end of tillering continue with stage 30'], ['4','Flowering usually starts before stage 55; continue with principal stage 6']], stages:[
     ['00','Dry seed (caryopsis)'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete (pigeon breast)'],
@@ -368,7 +368,7 @@ const CROPS = [
     ['97','Plant dead and collapsing'],
     ['99','Harvested product'],
   ]},
-  { id:'maize', nome:'Maize', ico:'🌽', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:['A leaf may be described as unfolded when its ligule is visible or the tip of next leaf is visible', 'Tillering or stem elongation may occur earlier than stage 19; in this case continue with principal growth stage 3', 'In maize, tassel emergence may occur earlier, in this case continue with principal growth stage 5'], stages:[
+  { id:'maize', nome:'Maize', ico:'🌽', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:[['1','A leaf may be described as unfolded when its ligule is visible or the tip of next leaf is visible'], ['2','Tillering or stem elongation may occur earlier than stage 19; in this case continue with principal growth stage 3'], ['3','In maize, tassel emergence may occur earlier, in this case continue with principal growth stage 5']], stages:[
     ['00','Dry seed (caryopsis)'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -408,7 +408,7 @@ const CROPS = [
     ['97','Plant dead and collapsing'],
     ['99','Harvested product'],
   ]},
-  { id:'rape', nome:'Oilseed rape', ico:'🌼', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:['Stem elongation may occur earlier than stage stage 19; in this case continue with stage 20', 'Visibly extended internode n develops between leaf n and leaf n +1'], stages:[
+  { id:'rape', nome:'Oilseed rape', ico:'🌼', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:[['1','Stem elongation may occur earlier than stage stage 19; in this case continue with stage 20'], ['2','Visibly extended internode n develops between leaf n and leaf n +1']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -471,7 +471,7 @@ const CROPS = [
     ['97','Plant dead and dry'],
     ['99','Harvested product'],
   ]},
-  { id:'fababean', nome:'Faba bean', ico:'🫘', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:['Stem elongation may occur earlier than stage 19; in this case continue with the principal stage 3', 'First internode extends from the scale leaf node to the first true leaf node'], stages:[
+  { id:'fababean', nome:'Faba bean', ico:'🫘', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:[['1','Stem elongation may occur earlier than stage 19; in this case continue with the principal stage 3'], ['2','First internode extends from the scale leaf node to the first true leaf node']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -532,7 +532,7 @@ const CROPS = [
     ['97','Plant dead and dry'],
     ['99','Harvested product'],
   ]},
-  { id:'sunflower', nome:'Sunflower', ico:'🌻', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:['Stem elongation may occur earlier than stage 19; in this case continue with the principal stage 3'], stages:[
+  { id:'sunflower', nome:'Sunflower', ico:'🌻', src:'Weber & Bleiholder, 1990; Lancashire et al., 1991', note:[['1','Stem elongation may occur earlier than stage 19; in this case continue with the principal stage 3']], stages:[
     ['00','Dry seed (achene)'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -629,7 +629,7 @@ const CROPS = [
     ['97','Leaves dead'],
     ['99','Harvested product (seeds)'],
   ]},
-  { id:'potato', nome:'Potato', ico:'🥔', src:'Hack et al., 1993', note:['For second generation sprouts', 'Stem development stops after termination of main stem by an inflorescence. Branches arise from axils of upper leaves of the main stem, exhibiting a sympodial branching pattern'], stages:[
+  { id:'potato', nome:'Potato', ico:'🥔', src:'Hack et al., 1993', note:[['1','For second generation sprouts'], ['2','Stem development stops after termination of main stem by an inflorescence. Branches arise from axils of upper leaves of the main stem, exhibiting a sympodial branching pattern']], stages:[
     ['00','Innate or enforced dormancy, Dry seed tuber not sprouted'],
     ['01','Beginning of sprouting: Beginning of sprouts visible (< 1 mm) seed imbibition'],
     ['02','Sprouts upright (< 2 mm)'],
@@ -695,7 +695,7 @@ const CROPS = [
     ['97','Leaves and stem dead, stems bleached and dry'],
     ['99','Harvested product'],
   ]},
-  { id:'pomefruit', nome:'Pome fruit', ico:'🍎', src:'Meier et al., 1994', note:['From terminal bud'], stages:[
+  { id:'pomefruit', nome:'Pome fruit', ico:'🍎', src:'Meier et al., 1994', note:[['1','Leave bud smaller and slimer, directly on the long sprout']], stages:[
     ['00','Dormancy: leaf buds and the thicker inflorescence buds closed and covered by dark brown scales'],
     ['01','Beginning of leaf bud swelling: buds visibly swollen, bud scales elongated, with light coloured patches'],
     ['03','End of leaf bud swelling: bud scales light coloured with some parts densely covered by hairs'],
@@ -746,7 +746,7 @@ const CROPS = [
     ['97','All leaves fallen'],
     ['99','Harvested product'],
   ]},
-  { id:'stonefruit', nome:'Stone fruit', ico:'🍑', src:'Meier et al., 1994', note:['From terminal bud'], stages:[
+  { id:'stonefruit', nome:'Stone fruit', ico:'🍑', src:'Meier et al., 1994', note:[['1','From terminal bud']], stages:[
     ['00','Dormancy: leaf buds and the thicker inflorescence buds closed and covered by dark brown scales'],
     ['01','Beginning of bud swelling (leaf buds); light brown scales visible, scales with light coloured edges'],
     ['03','End of leaf bud swelling: scales separated, light green bud sections visible'],
@@ -793,7 +793,7 @@ const CROPS = [
     ['97','All leaves fallen'],
     ['99','Harvested product'],
   ]},
-  { id:'currants', nome:'Currants', ico:'🫐', src:'Meier et al., 1994', note:['From terminal bud'], stages:[
+  { id:'currants', nome:'Currants', ico:'🫐', src:'Meier et al., 1994', note:[['1','From terminal bud']], stages:[
     ['00','Dormancy: leaf buds and the thicker inflorescence buds closed and covered by dark brown scales'],
     ['01','Beginning of bud swelling: bud scales elongated'],
     ['03','End of bud swelling: edges of bud scales light coloured'],
@@ -840,7 +840,7 @@ const CROPS = [
     ['97','All leaves fallen'],
     ['99','Harvested product'],
   ]},
-  { id:'strawberry', nome:'Strawberry', ico:'🍓', src:'Meier et al., 1994', note:['Normally after the three leaf stage the bud development occurs in principal growth stage 5'], stages:[
+  { id:'strawberry', nome:'Strawberry', ico:'🍓', src:'Meier et al., 1994', note:[['1','Normally after the three leaf stage the bud development occurs in principal growth stage 5']], stages:[
     ['00','Dormancy: Leaves prostrate and partly dead'],
     ['03','Main bud swelling'],
     ['10','First leaf emerging'],
@@ -874,7 +874,7 @@ const CROPS = [
     ['93','Old leaves dying, young leaves curling; old leaves of cultivarspecific colour'],
     ['97','Old leaves dead'],
   ]},
-  { id:'citrus', nome:'Citrus', ico:'🍊', src:'Agusti et al., 1995', note:['In Citrus the term “visible” replaces “unfolded” used for other fruit species. Leaf unfolding takes place precociously in citrus'], stages:[
+  { id:'citrus', nome:'Citrus', ico:'🍊', src:'Agusti et al., 1995', note:[['1','In Citrus the term “visible” replaces “unfolded” used for other fruit species. Leaf unfolding takes place precociously in citrus']], stages:[
     ['00','Dormancy: leaf and inflorescence buds undifferentiated, closed and covered by green scales'],
     ['01','Beginning of bud swelling'],
     ['03','End of bud swelling: green scales slightly separated'],
@@ -1098,7 +1098,7 @@ const CROPS = [
     ['97','End of leaf-fall'],
     ['99','Harvested product'],
   ]},
-  { id:'soybean', nome:'Soybean', ico:'🫛', src:'Munger et al., 1997', note:['This definition refers to determinate varieties', 'This definition refers to indeterminate varieties'], stages:[
+  { id:'soybean', nome:'Soybean', ico:'🫛', src:'Munger et al., 1997', note:[['1','The side shoot development may occur earlier, in this case continue with the principal growth stage 2'], ['2','This definition refers to determinate varieties'], ['3','This definition refers to indeterminate varieties']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1123,32 +1123,32 @@ const CROPS = [
     ['55','First flower buds enlarged'],
     ['59','First flower petals visible; flower buds still closed'],
     ['60','First flowers opened (sporadically in population)'],
-    ['61','Beginning of flowering: about 10% of flowers open²; Beginning of flowering3'],
+    ['61','Beginning of flowering: about 10% of flowers open²; Beginning of flowering³'],
     ['62','About 20% of flowers open²'],
     ['63','About 30% of flowers open²'],
     ['64','About 40% of flowers open²'],
-    ['65','Full flowering: about 50% of flowers open²; Main period of flowering3'],
+    ['65','Full flowering: about 50% of flowers open²; Main period of flowering³'],
     ['66','About 60% of flowers open²'],
     ['67','Flowering declining²'],
     ['69','End of flowering: first pods visible (approx. 5 mm length)²'],
     ['70','First pod reached final length (15–20 mm)'],
-    ['71','About 10% of pods have reached final length (15–20 mm)²; Beginning of pod development3'],
+    ['71','About 10% of pods have reached final length (15–20 mm)²; Beginning of pod development³'],
     ['72','About 20% of pods have reached final length (15–20 mm)²'],
-    ['73','About 30% of pods have reached final length (15–20 mm)²; Beginning of pod filling3'],
+    ['73','About 30% of pods have reached final length (15–20 mm)²; Beginning of pod filling³'],
     ['74','About 40% of pods have reached final length (15–20 mm)²'],
-    ['75','About 50% of pods have reached final length (15–20 mm). Continuation of pod filling.²; Main period of pod development. Continuation of pod filling3'],
-    ['77','About 70% of pods have reached final length (15–20 mm); Advanced pod filling.²; Advanced pod filling3'],
+    ['75','About 50% of pods have reached final length (15–20 mm). Continuation of pod filling.²; Main period of pod development. Continuation of pod filling³'],
+    ['77','About 70% of pods have reached final length (15–20 mm); Advanced pod filling.²; Advanced pod filling³'],
     ['79','Approx. all pods have reached final length (15–20 mm). Seeds filling the cavity of the majority of pods², 3'],
     ['80','First pod ripe, beans final colour, dry and hard'],
-    ['81','Beginning of ripening; about 10% of pods are ripe, beans final colour, dry and hard.²; Beginning of pod and seed ripening3'],
+    ['81','Beginning of ripening; about 10% of pods are ripe, beans final colour, dry and hard.²; Beginning of pod and seed ripening³'],
     ['82','About 20% of pods are ripe; beans final colour, dry and hard²'],
     ['83','About 30% of pods are ripe; beans final colour, dry and hard²'],
     ['84','About 40% of pods are ripe; beans final colour, dry and hard²'],
-    ['85','Advanced ripening; about 50% of pods are ripe; beans final colour, dry and hard.²; Main period of pod and seed ripening3'],
+    ['85','Advanced ripening; about 50% of pods are ripe; beans final colour, dry and hard.²; Main period of pod and seed ripening³'],
     ['86','About 60% of pods are ripe; beans final colour, dry and hard²'],
     ['87','About 70% of pods are ripe; beans final colour, dry and hard²'],
     ['88','About 80% of pods are ripe; beans final colour, dry and hard²'],
-    ['89','Full maturity: approx. all pods are ripe; beans final colour, dry and hard (= Harvest maturity).²; Majority of pods are ripe; beans final colour, dry and hard3'],
+    ['89','Full maturity: approx. all pods are ripe; beans final colour, dry and hard (= Harvest maturity).²; Majority of pods are ripe; beans final colour, dry and hard³'],
     ['91','About 10% of leaves discoloured or fallen'],
     ['92','About 20% of leaves discoloured or fallen'],
     ['93','About 30% of leaves discoloured or fallen'],
@@ -1158,7 +1158,7 @@ const CROPS = [
     ['97','Above ground parts of plants dead'],
     ['99','Harvested product (seeds)'],
   ]},
-  { id:'cotton', nome:'Cotton', ico:'🪷', src:'Munger et al., 1998', note:['Leaves are counted from the cotyledon node (= node 0)', 'Side shoot development may occur earlier, if there is a vegetative side shoot continue with principal growth stage 2. If there is a reproductive side shoot (fruiting branch) continue with the principal growth stage 5', 'Vegetative side shoots are counted from the cotyledon node', '“pin-head square” or “match-head square” is the first square which forms at the first fruiting position of the first fruiting branch'], stages:[
+  { id:'cotton', nome:'Cotton', ico:'🪷', src:'Munger et al., 1998', note:[['1','Leaves are counted from the cotyledon node (= node 0)'], ['2','Side shoot development may occur earlier, if there is a vegetative side shoot continue with principal growth stage 2. If there is a reproductive side shoot (fruiting branch) continue with the principal growth stage 5'], ['3','Vegetative side shoots are counted from the cotyledon node'], ['4','“pin-head square” or “match-head square” is the first square which forms at the first fruiting position of the first fruiting branch']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1224,7 +1224,7 @@ const CROPS = [
     ['97','Above ground parts of plant dead; plant dormant'],
     ['99','Harvested product (bolls and seeds)'],
   ]},
-  { id:'peanut', nome:'Peanut', ico:'🥜', src:'Munger et al., 1998a', note:['Leaves are counted from the cotyledon node (= node 0)', 'Side shoot development may occur earlier; in this case continue with principal growth stage 2', 'Only for varieties with a determinate flowering period', 'Criteria of maturity: Pericarp hard, with distinct texture, can be split open easily; Testa (seed coat) dry, with cultivar-specific dark colour'], stages:[
+  { id:'peanut', nome:'Peanut', ico:'🥜', src:'Munger et al., 1998a', note:[['1','Leaves are counted from the cotyledon node (= node 0)'], ['2','Side shoot development may occur earlier; in this case continue with principal growth stage 2'], ['4','Only for varieties with a determinate flowering period'], ['5','Criteria of maturity: Pericarp hard, with distinct texture, can be split open easily; Testa (seed coat) dry, with cultivar-specific dark colour']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1335,7 +1335,7 @@ const CROPS = [
     ['92','Overripeness: cones yellow-brown discoloured, aroma deterioration'],
     ['97','Dormancy: leaves and stems dead'],
   ]},
-  { id:'bulbveg', nome:'Bulb vegetables', ico:'🧅', src:'Feller et al., 1995a', note:['Seed sown', 'Onion sets, shallot and garlic', 'For onions, garlic', 'For leek'], stages:[
+  { id:'bulbveg', nome:'Bulb vegetables', ico:'🧅', src:'Feller et al., 1995a', note:[['1','Seed sown'], ['2','Onion sets, shallot and garlic'], ['3','For onions, garlic'], ['4','For leek']], stages:[
     ['00','Dry seed,¹ dormant bulb²'],
     ['01','Beginning of seed imbibition¹'],
     ['03','Seed imbibition complete¹'],
@@ -1494,7 +1494,7 @@ const CROPS = [
     ['97','Plants dead'],
     ['99','Harvested product (seeds)'],
   ]},
-  { id:'leafnohead', nome:'Leaf vegetables (not forming heads)', ico:'🥗', src:'Feller et al., 1995a', note:['For letucce varieties without head, spinach and species with rosette-type growth', 'For kale and species without rosette growth'], stages:[
+  { id:'leafnohead', nome:'Leaf vegetables (not forming heads)', ico:'🥗', src:'Feller et al., 1995a', note:[['1','For letucce varieties without head, spinach and species with rosette-type growth'], ['2','For kale and species without rosette growth']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1555,7 +1555,7 @@ const CROPS = [
     ['97','Plants dead'],
     ['99','Harvested product (seeds)'],
   ]},
-  { id:'brassica', nome:'Other brassica vegetables', ico:'🥦', src:'Feller et al., 1995a', note:['For broccoli', 'For brussels sprout', 'For cauliflower and broccoli'], stages:[
+  { id:'brassica', nome:'Other brassica vegetables', ico:'🥦', src:'Feller et al., 1995a', note:[['1','For broccoli'], ['2','For brussels sprout'], ['3','For cauliflower and broccoli']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1667,7 +1667,7 @@ const CROPS = [
     ['97','Plants dead'],
     ['99','Harvested product (seeds)'],
   ]},
-  { id:'solanaceous', nome:'Solanaceous fruits', ico:'🍅', src:'Feller et al., 1995b', note:['For tomatoes with determinate stem growth, paprika and aubergines. In tomatoes with indeterminate stem growth and only one sympodial branch at the corresponding axis, the apical side shoot formation occurs concurrently with the emergence of the inflorescence (Principal growth stage 5), so that the coding within principal growth stage 2 is not necessary', 'For tomato', 'For paprika and aubergine'], stages:[
+  { id:'solanaceous', nome:'Solanaceous fruits', ico:'🍅', src:'Feller et al., 1995b', note:[['1','For tomatoes with determinate stem growth, paprika and aubergines. In tomatoes with indeterminate stem growth and only one sympodial branch at the corresponding axis, the apical side shoot formation occurs concurrently with the emergence of the inflorescence (Principal growth stage 5), so that the coding within principal growth stage 2 is not necessary'], ['2','For tomato'], ['3','For paprika and aubergine']], stages:[
     ['00','Dry seeds'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1711,7 +1711,7 @@ const CROPS = [
     ['97','Plants dead'],
     ['99','Harvested product'],
   ]},
-  { id:'pea', nome:'Pea', ico:'🟢', src:'Weber & Bleiholder, 1990; Feller et al., 1995b', note:['The first internode extends from the scale leaf node to the first true leaf node'], stages:[
+  { id:'pea', nome:'Pea', ico:'🟢', src:'Weber & Bleiholder, 1990; Feller et al., 1995b', note:[['1','The first internode extends from the scale leaf node to the first true leaf node']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1762,7 +1762,7 @@ const CROPS = [
     ['97','Plants dead and dry'],
     ['99','Harvested product'],
   ]},
-  { id:'bean', nome:'Bean', ico:'🫘', src:'Feller et al., 1995b', stages:[
+  { id:'bean', nome:'Bean', ico:'🫘', src:'Feller et al., 1995b', note:[['1','For varieties with limited flowering period'], ['2','For varieties in which the flowering period is not limited']], stages:[
     ['00','Dry seed'],
     ['01','Beginning of seed imbibition'],
     ['03','Seed imbibition complete'],
@@ -1784,31 +1784,31 @@ const CROPS = [
     ['55','First flower buds enlarged'],
     ['59','First petals visible, flowers still closed'],
     ['60','First flowers open (sporadically within the population)'],
-    ['61','Beginning of flowering: 10% of flowers open1 Beginning of flowering2'],
-    ['62','20% of flowers open1'],
-    ['63','30% of flowers open1'],
-    ['64','40% of flowers open1'],
-    ['65','Full flowering: 50% of flowers open1 Main flowering period2'],
-    ['67','Flowering finishing: majority of petals fallen or dry1'],
-    ['69','End of flowering: first pods visible1'],
-    ['71','10% of pods have reached typical length1 Beginning of pot development2'],
-    ['72','20% of pods have reached typical length1'],
-    ['73','30% of pods have reached typical length1'],
-    ['74','40% of pods have reached typical length1'],
-    ['75','50% of pods have reached typical length, beans beginning to fill out1 Main pod development period2'],
-    ['76','60% of pods have reached typical length1'],
-    ['77','70% of pods have reached typical length, pods still break cleanly1'],
-    ['78','80% of pods have reached typical length1'],
-    ['79','Pods: individual beans easily visible1'],
-    ['81','10% of pods ripe (beans hard)1 Seeds beginning to mature2'],
-    ['82','20% of pods ripe (beans hard)1'],
-    ['83','30% of pods ripe (beans hard)1'],
-    ['84','40% of pods ripe (beans hard)1'],
-    ['85','50% of pods ripe (beans hard)1 Main period of ripening2'],
-    ['86','60% of pods ripe (beans hard)1'],
-    ['87','70% of pods ripe (beans hard)1'],
-    ['88','80% of pods ripe (beans hard)1'],
-    ['89','Fully ripe: pods ripe (beans hard)1'],
+    ['61','Beginning of flowering: 10% of flowers open¹; Beginning of flowering²'],
+    ['62','20% of flowers open¹'],
+    ['63','30% of flowers open¹'],
+    ['64','40% of flowers open¹'],
+    ['65','Full flowering: 50% of flowers open¹; Main flowering period²'],
+    ['67','Flowering finishing: majority of petals fallen or dry¹'],
+    ['69','End of flowering: first pods visible¹'],
+    ['71','10% of pods have reached typical length¹; Beginning of pot development²'],
+    ['72','20% of pods have reached typical length¹'],
+    ['73','30% of pods have reached typical length¹'],
+    ['74','40% of pods have reached typical length¹'],
+    ['75','50% of pods have reached typical length, beans beginning to fill out¹; Main pod development period²'],
+    ['76','60% of pods have reached typical length¹'],
+    ['77','70% of pods have reached typical length, pods still break cleanly¹'],
+    ['78','80% of pods have reached typical length¹'],
+    ['79','Pods: individual beans easily visible¹'],
+    ['81','10% of pods ripe (beans hard)¹; Seeds beginning to mature²'],
+    ['82','20% of pods ripe (beans hard)¹'],
+    ['83','30% of pods ripe (beans hard)¹'],
+    ['84','40% of pods ripe (beans hard)¹'],
+    ['85','50% of pods ripe (beans hard)¹; Main period of ripening²'],
+    ['86','60% of pods ripe (beans hard)¹'],
+    ['87','70% of pods ripe (beans hard)¹'],
+    ['88','80% of pods ripe (beans hard)¹'],
+    ['89','Fully ripe: pods ripe (beans hard)¹'],
     ['97','Plants dead'],
     ['99','Harvested product'],
   ]},
@@ -2013,7 +2013,7 @@ function noteHTML(c) {
   let html = '';
   if (c.note && c.note.length) {
     html += '<div class="crop-note"><div class="crop-note-t">Note</div>' +
-      c.note.map((n, i) => `<div>${APICI[i] || (i + 1)} ${esc(n)}</div>`).join('') + '</div>';
+      c.note.map(([num, testo]) => `<div>${APICI[num - 1] || num} ${esc(testo)}</div>`).join('') + '</div>';
   }
   const usaSigle = c.stages.some(st => /\[[DMVGP](,\s*[DMVGP])*\]/.test(st[1]));
   if (usaSigle) {
