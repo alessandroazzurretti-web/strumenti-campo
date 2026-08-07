@@ -161,7 +161,14 @@
     width: 76px !important; padding: 6px 8px !important;
     font-size: 14px !important; text-align: right;
   }
-  .volume-line { border-bottom: 1px dashed #E4DDC9; align-items: center; }
+  .volume-line { align-items: center; }
+  .water-box {
+    background: #F7F3EA; border: 1px solid #E4DDC9; border-radius: 10px;
+    padding: 4px 12px; margin-bottom: 14px;
+  }
+  .water-box .res-line { border-bottom: 1px dashed #E4DDC9; }
+  .water-box .res-line:last-child { border-bottom: none; }
+  .water-input { display: inline-flex; align-items: center; gap: 6px; }
   .res-line {
     display: flex; justify-content: space-between; gap: 8px;
     font-size: 13px; padding: 7px 0;
@@ -502,6 +509,15 @@ function unitaParcella() {
 
 // ============== CALCOLI ==============
 function num(id) { const v = parseFloat(document.getElementById(id).value.replace(',', '.')); return isNaN(v) ? null : v; }
+// Sotto 1 L o 1 kg la quantità si legge meglio in mL o g: 0,021 L diventa 21 mL.
+// Riguarda solo la resa a schermo; i calcoli restano nell'unità di base.
+function quantitaLeggibile(v, peso) {
+  if (v === null || !isFinite(v)) return { v: null, peso };
+  if (peso === 'L' && v < 1)  return { v: v * 1000, peso: 'mL' };
+  if (peso === 'kg' && v < 1) return { v: v * 1000, peso: 'g' };
+  return { v, peso };
+}
+
 function fmt(v, dec) {
   if (v === null || !isFinite(v)) return '—';
   const d = dec !== undefined ? dec : (v >= 100 ? 1 : v >= 1 ? 2 : 3);
@@ -652,17 +668,23 @@ function renderResults(ti) {
 
   let html = '';
   if (usaAcqua) {
-    html += `<div class="res-line volume-line">
-      <span class="res-name">Acqua <span class="range">L/ha per questa tesi</span></span>
-      <input type="text" inputmode="decimal" class="prep-input" value="${fmt(acquaTesi(t), 0)}"
-        onchange="impostaAcquaTesi(${ti}, this.value)">
-    </div>`;
-    html += `<div class="res-label">Acqua da preparare</div>
-    <div class="res-water">
-      <span class="big">${fmt(T, 1)} L</span>
-      <span class="range">(pianificata ${fmt(P, 2)} L · ${fmt(acquaTesi(t), 0)} L/ha)</span>
-      <input type="text" inputmode="decimal" class="prep-input" value="${esc(t.prepOverride ?? '')}" placeholder=""${Tdef !== null ? fmt(Tdef,1) : ''}"
-        onchange="state.tesi[${ti}].prepOverride=this.value||null;salva();renderResults(${ti})">
+    // Blocco acqua unico: volume/ha, poi pianificata e da preparare in fila,
+    // così i due numeri che prima stavano distanti ora si leggono insieme.
+    html += `<div class="water-box">
+      <div class="res-line volume-line">
+        <span class="res-name">Acqua per ettaro</span>
+        <span class="water-input"><input type="text" inputmode="decimal" class="prep-input" value="${fmt(acquaTesi(t), 0)}"
+          onchange="impostaAcquaTesi(${ti}, this.value)"> <span class="range">L/ha</span></span>
+      </div>
+      <div class="res-line">
+        <span class="res-name">Acqua pianificata</span>
+        <span class="qty-big">${fmt(P, 2)} L</span>
+      </div>
+      <div class="res-line volume-line">
+        <span class="res-name">Acqua da preparare <span class="range">arrotondata</span></span>
+        <span class="water-input"><input type="text" inputmode="decimal" class="prep-input" value="${esc(t.prepOverride ?? '')}" placeholder="${Tdef !== null ? fmt(Tdef,1) : ''}"
+          onchange="state.tesi[${ti}].prepOverride=this.value||null;salva();renderResults(${ti})"> <span class="range">L</span></span>
+      </div>
     </div>`;
   }
 
@@ -673,10 +695,12 @@ function renderResults(ti) {
     // riproporziono all'acqua preparata solo le dosi su base acqua
     const U = (R !== null && info.acqua && P > 0 && T > 0) ? T / P * R : R;
     const nome = f.nome || 'Formulato';
-    const pian = (info.acqua && R !== null && U !== R) ? ` · pian. ${fmt(R)} ${info.peso}` : '';
+    const q = quantitaLeggibile(U, info.peso);
+    const qp = quantitaLeggibile(R, info.peso);
+    const pian = (info.acqua && R !== null && U !== R) ? ` · pian. ${fmt(qp.v)} ${qp.peso}` : '';
     html += `<div class="res-line">
       <span class="res-name">${esc(nome)} <span class="range">${esc(f.unita)}${pian}</span></span>
-      <span class="qty-big">${U !== null ? `${fmt(U)} ${info.peso}` : '—'}</span>
+      <span class="qty-big">${q.v !== null ? `${fmt(q.v)} ${q.peso}` : '—'}</span>
     </div>`;
   }
 
@@ -849,7 +873,8 @@ function renderRiepilogoCanvas() {
       ctx.textAlign = 'right';
       ctx.fillStyle = '#3D2F1F';
       ctx.font = `600 14px ${MONO}`;
-      ctx.fillText(r.qty !== null && isFinite(r.qty) ? `${fmt(r.qty)} ${r.peso}` : '—', col.qty.x + col.qty.w - 10, ry + 24);
+      const rq = quantitaLeggibile(r.qty, r.peso);
+      ctx.fillText(rq.v !== null && isFinite(rq.v) ? `${fmt(rq.v)} ${rq.peso}` : '—', col.qty.x + col.qty.w - 10, ry + 24);
       // filo tratteggiato tra i formulati della stessa tesi
       if (ri < b.righe.length - 1) {
         ctx.strokeStyle = '#D4C9B8';

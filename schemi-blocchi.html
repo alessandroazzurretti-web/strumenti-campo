@@ -1290,7 +1290,8 @@ function generate() {
     let startIdx = 0;
     if (startT1) {
       const [r0, c0] = usedPath[0];
-      grid[r0][c0] = { treatment: 1, replication: 1, plotNum: 1 };
+      // prima parcella del blocco 1, posizione 1 → codice 101 (o progressivo nel CRD)
+      grid[r0][c0] = { treatment: 1, replication: 1, plotNum: 1, codiceAnon: design === 'crd' ? 1 : 101 };
       counts[1] = 1;
       startIdx = 1;
     }
@@ -1357,7 +1358,12 @@ function generate() {
 
       for (const t of shuffled) {
         const replication = design === 'crd' ? counts[t] + 1 : repIdx + 1;
-        grid[r][c] = { treatment: t, replication, plotNum: pathIdx + 1 };
+        // codice anonimo: prima cifra = blocco, ultime due = posizione nel blocco
+        // lungo la serpentina. Nel CRD non ci sono blocchi → progressivo semplice.
+        const posNelBlocco = design === 'crd' ? pathIdx + 1 : (pathIdx - repStart) + 1;
+        const blocco = design === 'crd' ? 0 : repIdx + 1;
+        const codiceAnon = design === 'crd' ? pathIdx + 1 : blocco * 100 + posNelBlocco;
+        grid[r][c] = { treatment: t, replication, plotNum: pathIdx + 1, codiceAnon };
         counts[t]++;
         if (assign(pathIdx + 1)) return true;
         grid[r][c] = null;
@@ -1393,7 +1399,8 @@ function generate() {
         if (startT1 && rep === 1 && iA === 0) ordineB = [1, ...ordineB.filter(x => x !== 1)];
         for (const b of ordineB) {
           const [r, c] = usedPath[idx++];
-          grid[r][c] = { treatment: (a - 1) * livB + b, replication: rep, plotNum: idx };
+          const posNelBlocco = idx - (rep - 1) * livA * livB;
+          grid[r][c] = { treatment: (a - 1) * livB + b, replication: rep, plotNum: idx, codiceAnon: rep * 100 + posNelBlocco };
         }
       });
     }
@@ -1587,10 +1594,10 @@ function renderScheme() {
         if (!isFixed) cellEl.style.borderColor = color.fg;
 
         // Due notazioni della stessa parcella:
-        //  - romana:   tesi grande + replica in numero romano (es. 1 I)
-        //  - numerica: codice replica×100 + tesi (es. 101)
+        //  - romana:   tesi grande + replica in numero romano (es. 1 I) — per il responsabile
+        //  - numerica: codice anonimo blocco+posizione (es. 101) — per il campo, non rivela la tesi
         const romanIsMain = state.numbering !== 'arm';
-        const codeNum = cell.replication * 100 + cell.treatment;
+        const codeNum = cell.codiceAnon != null ? cell.codiceAnon : (cell.replication * 100 + cell.treatment);
 
         // angolo in alto a sinistra: la notazione NON protagonista
         const plotNum = document.createElement('div');
@@ -2204,7 +2211,7 @@ function renderMapCanvas(s) {
         }
 
         const romanIsMain = state.numbering !== 'arm';
-        const codeNum = cellData.replication * 100 + cellData.treatment;
+        const codeNum = cellData.codiceAnon != null ? cellData.codiceAnon : (cellData.replication * 100 + cellData.treatment);
 
         // angolo: notazione non protagonista
         ctx.fillStyle = color.fg;
