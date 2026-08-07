@@ -161,6 +161,7 @@
     width: 76px !important; padding: 6px 8px !important;
     font-size: 14px !important; text-align: right;
   }
+  .volume-line { border-bottom: 1px dashed #E4DDC9; align-items: center; }
   .res-line {
     display: flex; justify-content: space-between; gap: 8px;
     font-size: 13px; padding: 7px 0;
@@ -226,7 +227,7 @@
       </div>
       <div class="modal-body">
         <ol>
-          <li>Imposta la <strong>dimensione della tesi</strong> (m²) e il volume di <strong>acqua per ettaro</strong> (L/ha).</li>
+          <li>Imposta la <strong>dimensione della tesi</strong> (m²) e il volume di <strong>acqua per ettaro</strong> (L/ha). Se una tesi va distribuita con una bagnatura diversa, scrivi il suo volume nel campo <strong>Acqua L/ha</strong> dentro la scheda della tesi: vale solo per quella.</li>
           <li>Per dosi <strong>LWA</strong>, apri <em>Impostazioni avanzate</em> e inserisci altezza chioma e distanza tra le file.</li>
           <li>Aggiungi una <strong>tesi</strong> per ogni prodotto e inserisci la <strong>dose d'etichetta</strong> scegliendo l'unità corretta (g/ha, mL/ha, g/hL, kg/ha, L/ha, LWA…).</li>
           <li>Per ogni tesi l'app calcola la <strong>quantità di prodotto</strong> e l'<strong>acqua da preparare</strong>; il riepilogo le raccoglie in tabella da salvare o condividere.</li>
@@ -379,7 +380,7 @@ const GRUPPI_UNITA = [
 
 // ============== STATO ==============
 function tesiVuota(nome) {
-  return { nome, formulati: [{ nome: '', dose: '', unita: 'g/ha' }], prepOverride: null };
+  return { nome, formulati: [{ nome: '', dose: '', unita: 'g/ha' }], acquaOverride: null, prepOverride: null };
 }
 function statoVuoto() { return { tesi: [tesiVuota('2')] }; }
 
@@ -420,6 +421,7 @@ function normalizzaStato(d) {
     tesi.push({
       nome: typeof t.nome === 'string' ? t.nome.slice(0, 12) : String(tesi.length + 2),
       formulati,
+      acquaOverride: (typeof t.acquaOverride === 'string' && t.acquaOverride !== '') ? t.acquaOverride : null,
       prepOverride: (typeof t.prepOverride === 'string' && t.prepOverride !== '') ? t.prepOverride : null
     });
   }
@@ -452,6 +454,40 @@ function esc(s) {
 // Unità mai vista (dato vecchio o corrotto): meglio "?" che un TypeError.
 const UNITA_IGNOTA = { acqua: false, peso: '?', parcella: '?' };
 function infoUnita(u) { return UNITA[u] || UNITA_IGNOTA; }
+
+// Cambio del volume dalla scheda della tesi: se coincide col generale (o è
+// vuoto) la tesi torna a seguire il default, altrimenti resta un suo valore.
+function impostaAcquaTesi(ti, valore) {
+  const g = num('acqua');
+  const v = parseFloat(String(valore).replace(',', '.'));
+  state.tesi[ti].acquaOverride = (!valore || !(v > 0) || v === g) ? null : String(valore);
+  salva();
+  render();
+}
+
+// Volume d'acqua della singola tesi: quello generale, salvo che la tesi ne
+// dichiari uno suo. Serve quando i prodotti della prova vanno distribuiti con
+// bagnature diverse — per esempio un diserbo a 200 L/ha e un fungicida a 1000.
+function acquaTesi(t) {
+  const o = t && t.acquaOverride;
+  if (o !== null && o !== undefined && String(o).trim() !== '') {
+    const v = parseFloat(String(o).replace(',', '.'));
+    if (v > 0) return v;
+  }
+  return num('acqua');
+}
+
+// Acqua pianificata per quella tesi: dimensione × L/ha ÷ 10000
+function acquaPianificata(t) {
+  const dim = num('dim'), a = acquaTesi(t);
+  return (dim && a) ? dim * a / 10000 : null;
+}
+
+// Quante tesi hanno un volume proprio, diverso da quello generale
+function tesiConVolumeProprio() {
+  const g = num('acqua');
+  return state.tesi.filter(t => acquaTesi(t) !== g).length;
+}
 
 // Unità in cui va espressa la dimensione della tesi: dipende dalle unità di
 // dose usate (m² per le dosi a ettaro, Piante per g/Pianta, Semi per μg/Seme…).
@@ -512,9 +548,13 @@ function render() {
   const up = unitaParcella();
   document.getElementById('dim-label').textContent = 'Dimensione tesi ' + up.join(' · ');
 
+  const nDiverse = tesiConVolumeProprio();
   let acquaLine = P !== null
     ? `Acqua pianificata per tesi: <strong>${fmt(P, 2)} L</strong>`
     : 'Inserisci dimensione e volume.';
+  if (nDiverse > 0) {
+    acquaLine += `<br><span style="color:#7D6B5C;">${nDiverse === 1 ? '1 tesi ha' : nDiverse + ' tesi hanno'} un volume proprio: vale quello, non questo.</span>`;
+  }
   if (up.length > 1) {
     acquaLine += `<br><span style="color:#A05820;">Le tesi usano dimensioni diverse (${up.join(', ')}): la casella è una sola. Separa le tesi in prove diverse.</span>`;
   }
@@ -601,10 +641,10 @@ function renderResults(ti) {
   const el = document.getElementById(`res-${ti}`);
   if (!t || !el) return;
 
-  const dim = num('dim'), acqua = num('acqua');
+  const dim = num('dim');
   const extra = num('extra') ?? 5;
   const lwa = calcolaLwa();
-  const P = (dim && acqua) ? dim * acqua / 10000 : null;
+  const P = acquaPianificata(t);
 
   const usaAcqua = t.formulati.some(f => infoUnita(f.unita).acqua);
   const Tdef = usaAcqua ? acquaPreparata(P, extra) : null;
@@ -612,10 +652,15 @@ function renderResults(ti) {
 
   let html = '';
   if (usaAcqua) {
+    html += `<div class="res-line volume-line">
+      <span class="res-name">Acqua <span class="range">L/ha per questa tesi</span></span>
+      <input type="text" inputmode="decimal" class="prep-input" value="${fmt(acquaTesi(t), 0)}"
+        onchange="impostaAcquaTesi(${ti}, this.value)">
+    </div>`;
     html += `<div class="res-label">Acqua da preparare</div>
     <div class="res-water">
       <span class="big">${fmt(T, 1)} L</span>
-      <span class="range">(pianificata ${fmt(P, 2)} L)</span>
+      <span class="range">(pianificata ${fmt(P, 2)} L · ${fmt(acquaTesi(t), 0)} L/ha)</span>
       <input type="text" inputmode="decimal" class="prep-input" value="${esc(t.prepOverride ?? '')}" placeholder=""${Tdef !== null ? fmt(Tdef,1) : ''}"
         onchange="state.tesi[${ti}].prepOverride=this.value||null;salva();renderResults(${ti})">
     </div>`;
@@ -647,7 +692,7 @@ function addTesi() {
     if (!isNaN(n) && n > max) max = n;
   }
   const unita = state.tesi[0]?.formulati[0]?.unita || 'g/ha';
-  state.tesi.push({ nome: String(max + 1), formulati: [{ nome: '', dose: '', unita }], prepOverride: null });
+  state.tesi.push({ nome: String(max + 1), formulati: [{ nome: '', dose: '', unita }], acquaOverride: null, prepOverride: null });
   salva(); render();
 }
 
@@ -680,6 +725,7 @@ function renderRiepilogoCanvas() {
   const P = (dim && acqua) ? dim * acqua / 10000 : null;
 
   const blocchi = state.tesi.map((t, ti) => {
+    const P = acquaPianificata(t);
     const usaAcqua = t.formulati.some(f => infoUnita(f.unita).acqua);
     const Tdef = usaAcqua ? acquaPreparata(P, extra) : null;
     const T = t.prepOverride !== null && t.prepOverride !== '' && t.prepOverride !== undefined
@@ -691,7 +737,7 @@ function renderRiepilogoCanvas() {
       const U = (R !== null && info.acqua && P > 0 && T > 0) ? T / P * R : R;
       return { nome: f.nome || 'Formulato', dose: f.dose, unita: f.unita, qty: U, peso: info.peso };
     });
-    return { nome: t.nome, colore: coloreTesi(t.nome, ti), usaAcqua, T, righe: righe.length ? righe : [{ nome: '—', dose: '', unita: '', qty: null, peso: '' }] };
+    return { nome: t.nome, colore: coloreTesi(t.nome, ti), usaAcqua, T, lha: acquaTesi(t), righe: righe.length ? righe : [{ nome: '—', dose: '', unita: '', qty: null, peso: '' }] };
   });
 
   const tw = W - pad * 2;
@@ -727,7 +773,8 @@ function renderRiepilogoCanvas() {
   ctx.textAlign = 'right';
   ctx.fillText(oggi, W - pad, 34);
   ctx.textAlign = 'left';
-  let par = `Tesi ${fmt(dim, 2)} ${unitaParcella().join('/')} · ${fmt(acqua, 0)} L/ha` + (P !== null ? ` · acqua/tesi ${fmt(P, 2)} L` : '');
+  let par = `Tesi ${fmt(dim, 2)} ${unitaParcella().join('/')} · ${fmt(acqua, 0)} L/ha` +
+    (tesiConVolumeProprio() ? ' (salvo tesi con volume proprio)' : (P !== null ? ` · acqua/tesi ${fmt(P, 2)} L` : ''));
   if (lwa) par += ` · LWA ${fmt(lwa, 0)} m²/ha`;
   ctx.fillText(par, pad, 56);
   ctx.strokeStyle = '#3D2F1F';
